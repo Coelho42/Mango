@@ -1,8 +1,10 @@
-﻿using Mango.Services.AuthAPI.Data;
+﻿using Mango.MessageBus;
+using Mango.Services.AuthAPI.Data;
 using Mango.Services.AuthAPI.Models;
 using Mango.Services.AuthAPI.Models.Dto;
 using Mango.Services.AuthAPI.Service.IService;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace Mango.Services.AuthAPI.Service
 {
@@ -12,6 +14,7 @@ namespace Mango.Services.AuthAPI.Service
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
+
         public AuthService(AppDbContext db, IJwtTokenGenerator jwtTokenGenerator,UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager) 
         {
             _db = db;
@@ -93,7 +96,6 @@ namespace Mango.Services.AuthAPI.Service
                         Name = userToReturn.Name,
                         PhoneNumber = userToReturn.PhoneNumber
                     };
-
                     return "";
                 }
                 else
