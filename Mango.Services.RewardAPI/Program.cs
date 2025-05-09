@@ -1,7 +1,7 @@
-using Mango.Services.EmailAPI.Data;
-using Mango.Services.EmailAPI.Extension;
-using Mango.Services.EmailAPI.Messaging;
-using Mango.Services.EmailAPI.Services;
+using Mango.Services.RewardAPI.Data;
+using Mango.Services.RewardAPI.Extension;
+using Mango.Services.RewardAPI.Messaging;
+using Mango.Services.RewardAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,11 +12,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 optionsBuilder.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-builder.Services.AddSingleton(new EmailService(optionsBuilder.Options));
+builder.Services.AddSingleton(new RewardsService(optionsBuilder.Options));
 
 builder.Services.AddSingleton<IAzureServiceBusConsumer, AzureServiceBusConsumer>();
 
@@ -35,9 +36,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 ApplyMigration();
-
 app.UseAzureServiceBusConsumer();
-
 app.Run();
 
 void ApplyMigration()
