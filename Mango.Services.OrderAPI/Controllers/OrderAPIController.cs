@@ -75,7 +75,7 @@ namespace Mango.Services.OrderAPI.Controllers
                 {
                     objList = _db.OrderHeaders.Include(u => u.OrderDetails).Where(u => u.UserId == userId).OrderByDescending(u => u.OrderHeaderId).ToList();
                 }
-                _response.Result = _mapper.Map<OrderHeaderDto>(objList);
+                _response.Result = _mapper.Map<IEnumerable<OrderHeaderDto>>(objList);
             }
             catch (Exception ex)
             {
@@ -200,6 +200,39 @@ namespace Mango.Services.OrderAPI.Controllers
                 _response.IsSuccess = false;
                 _response.Message = ex.Message;
 
+            }
+            return _response;
+        }
+
+        [Authorize]
+        [HttpPost("UpdateOrderStatus/{orderId:int}")]
+        public async Task<ResponseDto> UpdateOrderStatus(int orderId, [FromBody] string newStatus)
+        {
+            try
+            {
+                OrderHeader orderHeader = _db.OrderHeaders.First(u => u.OrderHeaderId == orderId);
+               if(orderHeader != null)
+                {
+                    if(newStatus == SD.Status_Cancelled)
+                    {
+                        // We will give refund
+                        var options = new RefundCreateOptions
+                        {
+                            Reason = RefundReasons.RequestedByCustomer,
+                            PaymentIntent = orderHeader.PaymentIntentId
+                        };
+
+                        var service = new RefundService();
+                        Refund refund = service.Create(options);                   
+                    }
+                    orderHeader.Status = newStatus;
+                    _db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                _response.IsSuccess = false;
+                _response.Message = ex.Message;
             }
             return _response;
         }
